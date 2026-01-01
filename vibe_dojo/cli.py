@@ -123,6 +123,106 @@ def create_drill(
         raise typer.Exit(1)
 
 
+@app.command()
+def next(
+    vault: Optional[Path] = typer.Option(None, help="Vault path (default: current directory)"),
+):
+    """Show the next drill to practice."""
+    from .trainer import get_next_drill, parse_frontmatter
+
+    vault_path = vault or Path.cwd()
+    vault_path = vault_path.resolve()
+
+    drill_path = get_next_drill(vault_path)
+
+    if not drill_path:
+        console.print("[yellow]No drills available for practice.[/yellow]")
+        console.print("\n[dim]Create a drill with: dojo create-drill --title \"...\"[/dim]")
+        return
+
+    # Display drill
+    content = drill_path.read_text(encoding="utf-8")
+    frontmatter, body = parse_frontmatter(content)
+
+    console.print(f"\n[bold blue]Next Drill:[/bold blue] {drill_path.name}")
+    console.print(f"[dim]Status: {frontmatter.get('status', 'unknown')}[/dim]")
+    console.print(f"[dim]Timebox: {frontmatter.get('timebox_min', 10)} minutes[/dim]")
+    console.print(f"[dim]Topics: {', '.join(frontmatter.get('topics', []))}[/dim]\n")
+
+    # Show body
+    console.print(body)
+
+    console.print("\n[bold green]Ready to practice?[/bold green]")
+    console.print("When done, run: [bold]dojo mark passed[/bold] (or failed/bullshit/outdated)")
+
+
+@app.command()
+def mark(
+    result: str = typer.Argument(..., help="Result: passed/failed/bullshit/outdated"),
+    vault: Optional[Path] = typer.Option(None, help="Vault path (default: current directory)"),
+    notes: Optional[str] = typer.Option(None, help="Optional notes about the practice"),
+):
+    """Mark the last shown drill with a result."""
+    from .trainer import get_next_drill, mark_drill, promote_to_mastery
+
+    vault_path = vault or Path.cwd()
+    vault_path = vault_path.resolve()
+
+    # Validate result
+    valid_results = {"passed", "failed", "bullshit", "outdated"}
+    if result not in valid_results:
+        console.print(f"[bold red]✗ Invalid result:[/bold red] {result}")
+        console.print(f"Valid options: {', '.join(valid_results)}")
+        raise typer.Exit(1)
+
+    # Get the drill (same as next would show)
+    drill_path = get_next_drill(vault_path)
+
+    if not drill_path:
+        console.print("[yellow]No drill to mark.[/yellow]")
+        return
+
+    try:
+        # Mark the drill
+        mark_drill(vault_path, drill_path, result, notes or "")
+
+        console.print(f"[bold green]✓ Drill marked as:[/bold green] {result}")
+
+        # Auto-promote if passed
+        if result == "passed":
+            mastery_path = promote_to_mastery(vault_path, drill_path)
+            console.print(f"[bold green]✓ Promoted to Mastery:[/bold green] {mastery_path.name}")
+
+    except Exception as e:
+        console.print(f"[bold red]✗ Error:[/bold red] {e}")
+        raise typer.Exit(1)
+
+
+@app.command()
+def promote(
+    drill_name: str = typer.Argument(..., help="Drill filename (e.g., DRILL__test.md)"),
+    vault: Optional[Path] = typer.Option(None, help="Vault path (default: current directory)"),
+):
+    """Manually promote a drill to Mastery."""
+    from .trainer import promote_to_mastery
+
+    vault_path = vault or Path.cwd()
+    vault_path = vault_path.resolve()
+
+    drill_path = vault_path / "01_Drills" / drill_name
+
+    if not drill_path.exists():
+        console.print(f"[bold red]✗ Drill not found:[/bold red] {drill_name}")
+        raise typer.Exit(1)
+
+    try:
+        mastery_path = promote_to_mastery(vault_path, drill_path)
+        console.print(f"[bold green]✓ Promoted to Mastery:[/bold green] {mastery_path.name}")
+
+    except Exception as e:
+        console.print(f"[bold red]✗ Error:[/bold red] {e}")
+        raise typer.Exit(1)
+
 
 if __name__ == "__main__":
     app()

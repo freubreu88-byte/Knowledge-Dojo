@@ -1,6 +1,6 @@
 """Markdown note writer."""
 
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
 
 from ulid import ULID
@@ -43,7 +43,7 @@ def create_drill_note(
 
     drill_id = str(ULID())
     created_at = datetime.now().isoformat()
-    next_review = (datetime.now() + timedelta(days=1)).date().isoformat()
+    next_review = datetime.now().date().isoformat()  # Available immediately
 
     # Defaults
     pattern = pattern or ["Pattern to be filled in"]
