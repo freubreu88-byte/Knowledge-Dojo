@@ -10,14 +10,14 @@ from ulid import ULID
 
 def slugify(text: str) -> str:
     """Convert text to URL-safe slug."""
-    text = text.lower()
+    text = str(text).lower()  # Ensure string type
     text = re.sub(r"[^\w\s-]", "", text)
     text = re.sub(r"[-\s]+", "-", text)
     return text.strip("-")
 
 
 def fetch_youtube_transcript(url: str) -> tuple[str, str]:
-    """Fetch YouTube transcript."""
+    """Fetch YouTube transcript with multi-language fallback (v1.2.3+)."""
     from youtube_transcript_api import YouTubeTranscriptApi
 
     # Extract video ID
@@ -26,9 +26,26 @@ def fetch_youtube_transcript(url: str) -> tuple[str, str]:
         raise ValueError("Invalid YouTube URL")
 
     video_id = video_id_match.group(1)
-    transcript = YouTubeTranscriptApi.get_transcript(video_id)
-    text = "\n".join([entry["text"] for entry in transcript])
-    return text, "youtube-transcript-api"
+    
+    try:
+        # Try German first, then English
+        # Use static method properly
+        transcript_list = YouTubeTranscriptApi.list_transcripts(video_id)
+        transcript = transcript_list.find_transcript(["de", "en"])
+        transcript_data = transcript.fetch()
+        text = " ".join([entry["text"] for entry in transcript_data])
+        return text, "youtube-transcript-api-v1"
+    except Exception as e:
+        # Fallback: catch any available transcript if specific languages fail
+        try:
+            transcript_list = YouTubeTranscriptApi.list_transcripts(video_id)
+            # Find any available transcript, prioritizing known languages
+            # This handles auto-generated and translated transcripts
+            transcript = transcript_list.find_transcript(["de", "en"])
+            text = " ".join([entry["text"] for entry in transcript.fetch()])
+            return text, "youtube-transcript-api-fallback"
+        except Exception as fallback_err:
+            raise ValueError(f"Could not retrieve transcript for {url}: {fallback_err}") from e
 
 
 def fetch_reddit_content(url: str) -> tuple[str, str]:
@@ -133,7 +150,7 @@ source_kind: {source_kind}
 url: {url or ""}
 captured_at: {captured_at}
 fetch_method: {fetch_method}
-transcript_path: _attachments/{source_id}.txt
+transcript_path: 00_Inbox/_attachments/{source_id}.txt
 ---
 
 # {title}
