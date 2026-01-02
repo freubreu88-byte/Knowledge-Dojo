@@ -27,7 +27,7 @@ class Config:
             "vault_path": ".",
             "llm": {
                 "provider": "gemini",
-                "model": "gemini-2.0-flash-exp",
+                "model": "google/gemini-3-flash-preview",
                 "temperature": 0.3,
             },
             "defaults": {
