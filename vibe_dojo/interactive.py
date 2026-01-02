@@ -139,8 +139,12 @@ class InteractiveApp:
                          except ValueError:
                              num = 3
                              
+                         from .config import Config
+                         config = Config(self.vault_path).config
+                         model = config.get("llm", {}).get("model", "gemini-3-flash-preview")
+                         
                          from .cli import distill
-                         distill(source_id=source_id, vault=self.vault_path, num_drills=num)
+                         distill(source_id=source_id, vault=self.vault_path, num_drills=num, model=model)
                          
         except SystemExit:
              pass # Typer raises SystemExit on exit
