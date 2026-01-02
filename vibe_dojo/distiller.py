@@ -152,16 +152,22 @@ Return a JSON array of drill objects. Each drill must have:
 Generate {num_drills} drills now:"""
 
     # Call Gemini (1M token window allows full transcripts)
-    response = client.models.generate_content(
-        model=model_name,
-        contents=prompt,
-        config=types.GenerateContentConfig(
-            temperature=0.7,
-            top_p=0.95,
-            top_k=40,
-            max_output_tokens=8192, # Increased for larger drill sets
-        ),
-    )
+    try:
+        response = client.models.generate_content(
+            model=model_name,
+            contents=prompt,
+            config=types.GenerateContentConfig(
+                temperature=0.7,
+                top_p=0.95,
+                top_k=40,
+                max_output_tokens=8192, # Increased for larger drill sets
+            ),
+        )
+    except genai.errors.ClientError as e:
+        print(f"\n[ERROR] Gemini API Refused: {e}")
+        print(f"Model used: {model_name}")
+        print("Note: If you get a 404, the model might not be enabled for your API key's project or region.")
+        raise
 
     # Parse JSON response
     response_text = response.text.strip()
