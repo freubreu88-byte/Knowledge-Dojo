@@ -1,9 +1,0 @@
-defaults:
-  confidence_threshold: 0.6
-  max_drills_per_day: 5
-  timebox_min: 10
-llm:
-  model: gemini-2.5-flash
-  provider: gemini
-  temperature: 0.3
-vault_path: .

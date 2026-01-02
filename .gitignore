@@ -52,3 +52,27 @@ htmlcov/
 # Dojo
 .dojo_cache/
 mcp.md
+
+# Local Vault Content (Do not push user data)
+00_Inbox/
+01_Drills/
+02_Practice_Logs/
+10_Mastery/
+11_Topics/
+20_Quick_Reference/
+90_Archive/
+Home.md
+config.yaml
+_templates/
+_agent_rules/
+
+# Local Dev/Debug Scripts
+diagnose_env.py
+inspect_api.py
+requirements.txt
+
+# Local User Vaults
+fabsvault/
+productionvault/
+my-vault/
+test-vault/
