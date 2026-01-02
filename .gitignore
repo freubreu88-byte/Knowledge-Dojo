@@ -48,3 +48,6 @@ htmlcov/
 
 # Ruff
 .ruff_cache/
+
+# Dojo
+.dojo_cache/

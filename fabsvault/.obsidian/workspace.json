@@ -1,0 +1,220 @@
+{
+  "main": {
+    "id": "8fb58301ab87503c",
+    "type": "split",
+    "children": [
+      {
+        "id": "5fa560e40e8b26e9",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "f49ee19146996b91",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "20_Quick_Reference/LLM_Prompting.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "LLM_Prompting"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "2d60b783a3746900",
+    "type": "split",
+    "children": [
+      {
+        "id": "1d8202c3d01b06f8",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "ee540947a74537af",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
+            }
+          },
+          {
+            "id": "4d8a312f9d261665",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Search"
+            }
+          },
+          {
+            "id": "f1358c16cb54a531",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "55e73df6762a94ef",
+    "type": "split",
+    "children": [
+      {
+        "id": "eaafe26d182982d1",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "ca63f3d8412ecd4b",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "20_Quick_Reference/LLM_Prompting.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks for LLM_Prompting"
+            }
+          },
+          {
+            "id": "0a80be75bdeed234",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "20_Quick_Reference/LLM_Prompting.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links from LLM_Prompting"
+            }
+          },
+          {
+            "id": "54b96ea6e75663a4",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "5acb984471f81161",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "All properties"
+            }
+          },
+          {
+            "id": "4585dc3296d0bbe0",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "20_Quick_Reference/LLM_Prompting.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline of LLM_Prompting"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false,
+      "bases:Create new base": false
+    }
+  },
+  "active": "f49ee19146996b91",
+  "lastOpenFiles": [
+    "20_Quick_Reference/Claude_Skills.md",
+    "11_Topics/Metadata_Optimization.md",
+    "11_Topics/Frontend_Development.md",
+    "11_Topics/Domain_Names.md",
+    "11_Topics/Content_Generation.md",
+    "11_Topics/Code_Review.md",
+    "11_Topics/Code_Generation.md",
+    "11_Topics/Claude_Skills.md",
+    "11_Topics/Business_Strategy.md",
+    "11_Topics/Backend_Development.md",
+    "11_Topics/Automation.md",
+    "11_Topics/API_Integration.md",
+    "00_Inbox/SOURCE__claude-skills-explained-4-skills-to-10x-your-coding-workflow.md",
+    "_Dashboard.md",
+    "Home.md",
+    "20_Quick_Reference/LLM_Prompting.md",
+    "10_Mastery/MASTERY__generate-enhanced-video-metadata-with-an-llm.md",
+    "10_Mastery/MASTERY__create-a-custom-code-review-skill-with-claudes-skill-creator.md",
+    "10_Mastery/MASTERY__control-llm-response-depth-for-coding-tasks.md",
+    "10_Mastery/MASTERY__brainstorm-domain-names-with-claudes-domain-name-brainstormer-skill.md",
+    "02_Practice_Logs/2026-01-02__integrate-stripe-payments-using-claudes-stripe-integration-skill.md",
+    "02_Practice_Logs/2026-01-02__generate-enhanced-video-metadata-with-an-llm.md",
+    "02_Practice_Logs/2026-01-02__create-a-custom-code-review-skill-with-claudes-skill-creator.md",
+    "02_Practice_Logs/2026-01-02__control-llm-response-depth-for-coding-tasks.md",
+    "02_Practice_Logs/2026-01-02__brainstorm-domain-names-with-claudes-domain-name-brainstormer-skill.md",
+    "01_Drills/DRILL__integrate-stripe-payments-using-claudes-stripe-integration-skill.md",
+    "20_Quick_Reference",
+    "00_Inbox/_attachments/01KDZ88G6ZWHXK367H6888PJRH.txt",
+    "00_Inbox/_attachments/01KDZ82WCGJYQ31NK32W2PF1T7.txt",
+    "00_Inbox/_attachments/01KDZ69FBQB7STXZ5MYD6HJ1EG.txt",
+    "00_Inbox/_attachments/01KDZ5S2Y8EJZ7GGJVMF3SGP85.txt"
+  ]
+}

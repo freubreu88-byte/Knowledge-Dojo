@@ -15,6 +15,16 @@ app = typer.Typer(help="Vibe-Dojo: Trainer-first learning system")
 console = Console()
 
 
+@app.callback(invoke_without_command=True)
+def main(ctx: typer.Context):
+    """Vibe-Dojo Main Entry Point."""
+    if ctx.invoked_subcommand is None:
+         from .interactive import InteractiveApp
+         try:
+             InteractiveApp().start()
+         except KeyboardInterrupt:
+             print("\n👋 Bye!")
+
 @app.command()
 def init_vault(
     path: Optional[Path] = typer.Argument(None, help="Vault path (default: current directory)"),
@@ -423,6 +433,7 @@ def create_drill(
 @app.command(name="next")
 def next_drill(
     vault: Optional[Path] = typer.Option(None, help="Vault path (default: current directory)"),
+    drill: Optional[str] = typer.Option(None, "--drill", help="Specific drill filename to practice"),
 ):
     """Show the next drill to practice."""
     from .trainer import get_next_drill, parse_frontmatter
@@ -430,7 +441,18 @@ def next_drill(
     vault_path = vault or Path.cwd()
     vault_path = vault_path.resolve()
 
-    drill_path = get_next_drill(vault_path)
+    if drill:
+        drill_path = vault_path / "01_Drills" / drill
+        if not drill_path.exists():
+             # Try with .md if missing
+             if not drill.endswith(".md"):
+                  drill_path = vault_path / "01_Drills" / f"{drill}.md"
+        
+        if not drill_path.exists():
+             console.print(f"[bold red]✗ Error:[/bold red] Drill file '{drill}' not found.")
+             return
+    else:
+        drill_path = get_next_drill(vault_path)
 
     if not drill_path:
         from .trainer import count_today_logs
@@ -679,7 +701,7 @@ def distill(
     source_id: str = typer.Argument(..., help="Source note ID to distill drills from"),
     vault: Optional[Path] = typer.Option(None, help="Vault path (default: current directory)"),
     num_drills: int = typer.Option(3, "--num", help="Number of drills to generate"),
-    model: str = typer.Option("gemini-3-flash-preview", help="Gemini model to use"),
+    model: str = typer.Option("gemini-1.5-flash", help="Gemini model to use"),
 ):
     """Use LLM to auto-generate drills from a source note."""
     from .distiller import create_drills_from_source
@@ -728,6 +750,64 @@ def promote(
         mastery_path = promote_to_mastery(vault_path, drill_path)
         console.print(f"[bold green]✓ Promoted to Mastery:[/bold green] {mastery_path.name}")
 
+    except Exception as e:
+        console.print(f"[bold red]✗ Error:[/bold red] {e}")
+        raise typer.Exit(1)
+
+
+@app.command()
+def dedup(
+    vault: Optional[Path] = typer.Option(None, help="Vault path (default: current directory)"),
+):
+    """Build semantic index and check for duplicates."""
+    from .semantic import SemanticIndex
+    
+    vault_path = vault or Path.cwd()
+    vault_path = vault_path.resolve()
+
+    console.print(f"[bold blue]🔍 Indexing vault content...[/bold blue]")
+    try:
+        index = SemanticIndex(vault_path)
+        count = index.index_vault()
+        console.print(f"[green]✓ Indexed {count} new/updated items.[/green]")
+        
+        # Check for duplicates based on similarity
+        console.print(f"\n[bold blue]👯 Checking for potential duplicates...[/bold blue]")
+        
+        duplicates_found = False
+        
+        # Check Mastery - look for other mastery notes that are similar
+        all_items = list(index.index.items())
+        
+        # Keep track of reported pairs to avoid A-B and B-A double reporting
+        seen_pairs = set()
+        
+        for path, data in all_items:
+            # We search for items similar to key 'path'
+            sims = index.find_similar(
+                query_embedding=data["embedding"], 
+                threshold=0.92, # Very high threshold for "duplicate" warning
+                limit=5
+            )
+            
+            # Filter out self
+            sims = [s for s in sims if s["path"] != path]
+            
+            if sims:
+                for s in sims:
+                    pair = tuple(sorted([path, s["path"]]))
+                    if pair in seen_pairs:
+                        continue
+                    seen_pairs.add(pair)
+                    
+                    duplicates_found = True
+                    console.print(f"\n[bold yellow]Similarity Warning ({s['score']:.2f}):[/bold yellow]")
+                    console.print(f"  1. {path}")
+                    console.print(f"  2. {s['path']}")
+
+        if not duplicates_found:
+            console.print("[green]✓ No obvious duplicates found.[/green]")
+            
     except Exception as e:
         console.print(f"[bold red]✗ Error:[/bold red] {e}")
         raise typer.Exit(1)

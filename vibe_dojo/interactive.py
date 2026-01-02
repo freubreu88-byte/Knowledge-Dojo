@@ -148,7 +148,7 @@ class InteractiveApp:
         from .distiller import load_source_content, get_existing_context
         
         config = Config(self.vault_path).config
-        model = config.get("llm", {}).get("model", "gemini-2.5-flash")
+        model = config.get("llm", {}).get("model", "gemini-1.5-flash")
         
         console.print(f"\n[bold blue]🧠 Analyzing content with {model}...[/bold blue]")
         
@@ -257,47 +257,155 @@ class InteractiveApp:
 
     def _do_distill_inbox(self):
         """Interactive inbox distillation."""
-        from .cli import distill_inbox
+        from .cli import distill_inbox, distill
         
-        # Check if there are pending files first to give better UX
         inbox_path = self.vault_path / "00_Inbox"
         pending = list(inbox_path.glob("SOURCE__pending__*.md"))
         
-        if not pending:
+        if pending:
+            console.print(f"\n[bold blue]📦 Found {len(pending)} pending captures.[/bold blue]")
+            if Prompt.ask("Process all pending captures?", choices=["y", "n"], default="y") == "y":
+                num_str = Prompt.ask("How many drills per source?", default="3")
+                try:
+                     num = int(num_str)
+                except ValueError:
+                     num = 3
+                try:
+                     distill_inbox(vault=self.vault_path, num_drills=num)
+                except SystemExit:
+                     pass
+            return
+
+        # If no pending, allow processing existing sources
+        all_sources = sorted(list(inbox_path.glob("SOURCE__*.md")))
+        # Filter out "SOURCE__.md" which might be a placeholder/artifact
+        all_sources = [s for s in all_sources if s.stem != "SOURCE__"]
+
+        if not all_sources:
             console.print("\n[yellow]Inbox is empty! Go 'Add Content' first.[/yellow]")
             return
 
-        num_str = Prompt.ask("How many drills per source?", default="3")
+        console.print("\n[bold blue]📥 No new pending captures, but found existing sources:[/bold blue]")
+        
+        from rich.table import Table
+        table = Table(show_header=True, header_style="bold magenta")
+        table.add_column("#", style="dim", width=4)
+        table.add_column("Title", style="bold")
+        table.add_column("ID", style="cyan")
+
+        source_info = []
+        for idx, source_file in enumerate(all_sources, 1):
+            content = source_file.read_text(encoding="utf-8")
+            import re
+            id_match = re.search(r"id: ([\w\d]+)", content)
+            source_id = id_match.group(1) if id_match else "unknown"
+            title = source_file.stem.replace("SOURCE__", "").replace("-", " ").title()
+            table.add_row(str(idx), title, source_id)
+            source_info.append(source_id)
+
+        console.print(table)
+        
+        choice = Prompt.ask("\n[bold]Select a source ID or # to re-distill[/bold] (or [N]one)", default="N")
+        if choice.lower() == 'n':
+            return
+
+        target_id = None
+        # Try numeric index first
         try:
-             num = int(num_str)
+            val = int(choice)
+            if 1 <= val <= len(source_info):
+                target_id = source_info[val-1]
         except ValueError:
-             num = 3
-        try:
-             # Explicitly calling command function
-             distill_inbox(vault=self.vault_path, num_drills=num)
-        except SystemExit:
-             pass
+            target_id = choice # Assume it's a direct ID
+
+        if target_id:
+            # Using the direct distill logic
+            self._propose_and_select_drills(target_id)
+
 
     def _do_practice_next(self):
         """Interactive practice session."""
         from .cli import next_drill
+        from .trainer import get_upcoming_drills
+        from datetime import datetime
+        import time
         
-        # next_drill acts as a persistent session until user quits or runs out
-        # We loop here to allow "just one more" flow naturally
         while True:
-            try:
-                next_drill(vault=self.vault_path)
+            console.clear()
+            console.print("\n[bold blue]💪 Vibe-Dojo: Practice Session[/bold blue]")
+            
+            # 1. Get available drills (showing up to 15 for selection)
+            available = get_upcoming_drills(self.vault_path, count=15)
+            
+            if not available:
+                console.print("[yellow]No drills available for practice right now.[/yellow]")
+                return
+
+            # 2. Show Table
+            from rich.table import Table
+            table = Table(title="Choose your Dojo Task", show_header=True, header_style="bold magenta")
+            table.add_column("#", style="dim", width=4)
+            table.add_column("Status", width=12)
+            table.add_column("Topic", style="gold1")
+            table.add_column("Drill", style="bold")
+            table.add_column("Due Date", justify="right")
+
+            today = datetime.now().date()
+            for idx, d in enumerate(available, 1):
+                status_style = {"passed": "green", "failed": "red", "untried": "cyan"}.get(d["status"], "white")
+                due_val = d["next_review"]
                 
-                # If next_drill returns (meaning skipped or marked), ask to continue
-                cont = Prompt.ask("\n[bold]Practice another?[/bold] [green](y)es[/green] / [dim](n)o[/dim]", choices=["y", "n"], default="y")
-                if cont == "n":
+                if due_val <= today:
+                    due_str = "[bold green]NOW[/bold green]"
+                else:
+                    days = (due_val - today).days
+                    due_str = f"in {days}d"
+                
+                topic = d["topics"][0] if d["topics"] else "General"
+                table.add_row(
+                    str(idx),
+                    f"[{status_style}]{d['status'].upper()}[/{status_style}]",
+                    f"{topic}",
+                    d["title"],
+                    due_str
+                )
+            
+            console.print(table)
+            console.print("\n[dim][Index #] Select | [ENTER] Recommended (#1) | [Q] Exit Dojo[/dim]")
+            
+            choice = Prompt.ask("Action", default="1")
+            
+            if choice.lower() == 'q':
+                break
+            
+            selected_drill_name = None
+            try:
+                idx = int(choice) - 1
+                if 0 <= idx < len(available):
+                    selected_drill_name = available[idx]["path"].name
+                else:
+                    console.print(f"[red]Invalid index: {choice}[/red]")
+                    time.sleep(1)
+                    continue
+            except ValueError:
+                console.print("[red]Please enter a number or 'q'.[/red]")
+                time.sleep(1)
+                continue
+            
+            if selected_drill_name:
+                try:
+                    next_drill(vault=self.vault_path, drill=selected_drill_name)
+                    
+                    # After finishing one, ask if they want more
+                    cont = Prompt.ask("\n[bold]Keep training?[/bold] [green](y)es[/green] / [dim](n)o[/dim]", choices=["y", "n"], default="y")
+                    if cont == "n":
+                        break
+                except typer.Exit:
                     break
-                console.clear()
-            except typer.Exit:
-                break
-            except Exception as e:
-                console.print(f"[red]Error in practice session: {e}[/red]")
-                break
+                except Exception as e:
+                    console.print(f"[red]Error: {e}[/red]")
+                    break
+
 
     def _do_view_stats(self):
         """View dashboard."""

@@ -83,7 +83,7 @@ def load_source_content(vault_path: Path, source_id: str) -> tuple[str, dict]:
 def distill_drills(
     source_content: str,
     source_metadata: dict,
-    model_name: str = "gemini-2.5-flash",
+    model_name: str = "gemini-1.5-flash",
     existing_context: str = "",
     num_drills: Optional[int] = None, # Kept for backward compat but unused in prompt
 ) -> list[dict]:
@@ -163,7 +163,8 @@ Generate the drill proposal list now:"""
                 temperature=0.7,
                 top_p=0.95,
                 top_k=40,
-                max_output_tokens=8192, # Increased for larger drill sets
+                max_output_tokens=8192,
+                response_mime_type='application/json',
             ),
         )
     except genai.errors.ClientError as e:
@@ -187,30 +188,83 @@ Generate the drill proposal list now:"""
 
     try:
         drills = json.loads(response_text)
-    except json.JSONDecodeError as e:
-        raise ValueError(f"Failed to parse Gemini response as JSON: {e}\n\n{response_text}")
+    except json.JSONDecodeError:
+        # SALVAGE LOGIC: Try to recover complete drills from a truncated array
+        try:
+            # 1. Try to find the last occurrence of a closing brace for an object in the array
+            # We look for "}," followed by anything or just "}" at the end of a mostly complete array
+            last_valid_object = response_text.rfind("},")
+            if last_valid_object == -1:
+                # Try finding just a closing brace if it's the very last one
+                last_valid_object = response_text.rfind("}")
+            
+            if last_valid_object != -1:
+                # Cut the string at the end of the last complete object
+                salvaged_text = response_text[:last_valid_object + 1]
+                # Ensure it's a valid array
+                if salvaged_text.startswith("["):
+                    salvaged_text += "]"
+                elif not salvaged_text.startswith("[") and "[" in response_text:
+                    # In case the start was also messy
+                    salvaged_text = "[" + salvaged_text + "]"
+                
+                drills = json.loads(salvaged_text)
+                print(f"[INFO] Salvaged {len(drills)} drills from truncated response.")
+            else:
+                raise ValueError(f"Failed to parse or salvage Gemini response as JSON.\n\n{response_text[:500]}...")
+        except Exception as e_inner:
+             raise ValueError(f"Failed to parse Gemini response as JSON and salvage failed: {e_inner}\n\n{response_text[:500]}...")
 
     return drills
 
 
-def get_existing_context(vault_path: Path) -> str:
-    """Scan vault for existing mastery and drills to provide context."""
+
+def get_existing_context(vault_path: Path, query_text: str = "") -> str:
+    """Scan vault for existing mastery and drills to provide context.
+    
+    Uses semantic search if query_text is provided, otherwise falls back 
+    to recent items or specific list if small enough.
+    """
+    from .semantic import SemanticIndex
+    
     context_lines = []
     
-    # 1. Check Mastery (Confirmed knowledge)
+    # Initialize index
+    index = SemanticIndex(vault_path)
+    
+    # 1. Semantic Search (if query provided)
+    if query_text:
+        # Index vault if needed/empty? 
+        # For performance, we assume index is reasonably up to date or we might miss fresh things.
+        # But we can try to index blindly? No, distracting.
+        # Just use what we have.
+        
+        similar_items = index.find_similar(query=query_text, limit=10, threshold=0.6)
+        
+        if similar_items:
+            context_lines.append("RELATED EXISTING CONTENT (DO NOT DUPLICATE):")
+            for item in similar_items:
+                path = item["path"]
+                # Clean path to title
+                # e.g. 10_Mastery/MASTERY__Foo.md -> Foo
+                name = Path(path).stem.replace("MASTERY__", "").replace("DRILL__", "").replace("-", " ")
+                type_label = "Mastered" if item["type"] == "mastery" else "In Progress Drill"
+                context_lines.append(f"- [{type_label}] {name}")
+            return "\n".join(context_lines)
+
+    # 2. Fallback: Recent Mastery (if no query or no matches)
+    # Just list the last 20 mastery notes
     mastery_path = vault_path / "10_Mastery"
     if mastery_path.exists():
-        mastered = [f.stem.replace("MASTERY__", "").replace("-", " ") for f in mastery_path.glob("MASTERY__*.md")]
+        # Get all mastery notes
+        all_mastery = list(mastery_path.glob("MASTERY__*.md"))
+        # Sort by mtime desc
+        all_mastery.sort(key=lambda x: x.stat().st_mtime, reverse=True)
+        
+        mastered = [f.stem.replace("MASTERY__", "").replace("-", " ") for f in all_mastery[:20]]
         if mastered:
-            context_lines.append(f"ALREADY MASTERED CONCEPTS: {', '.join(mastered)}")
+            context_lines.append(f"RECENTLY MASTERED: {', '.join(mastered)}")
 
-    # 2. Check Active Drills (In progress)
-    drills_path = vault_path / "01_Drills"
-    if drills_path.exists():
-        active = [f.stem.replace("DRILL__", "").replace("-", " ") for f in drills_path.glob("DRILL__*.md")]
-        if active:
-            context_lines.append(f"CURRENTLY LEARNING: {', '.join(active)}")
-            
     return "\n".join(context_lines)
 
 
@@ -218,7 +272,7 @@ def create_drills_from_source(
     vault_path: Path,
     source_id: str,
     num_drills: int = 3,
-    model_name: str = "gemini-3-flash-preview",
+    model_name: str = "gemini-1.5-flash",
 ) -> list[Path]:
     """Load source, distill drills with LLM, and create drill notes.
 
@@ -237,13 +291,14 @@ def create_drills_from_source(
     source_content, source_metadata = load_source_content(vault_path, source_id)
     
     # Get existing context to avoid duplicates
-    existing_context = get_existing_context(vault_path)
+    # Use first 2000 chars of source content for semantic query to save tokens/time
+    query_preview = source_content[:2000] if source_content else ""
+    existing_context = get_existing_context(vault_path, query_text=query_preview)
 
     # Distill drills
     drill_data = distill_drills(
         source_content, 
         source_metadata, 
-        num_drills, 
         model_name,
         existing_context=existing_context
     )

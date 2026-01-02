@@ -95,7 +95,10 @@ prereqs: {prereqs}
 - Try variation 2
 """
 
-    drill_file = vault_path / "01_Drills" / f"DRILL__{slug}.md"
+    drill_dir = vault_path / "01_Drills"
+    drill_dir.mkdir(parents=True, exist_ok=True)
+    
+    drill_file = drill_dir / f"DRILL__{slug}.md"
     drill_file.write_text(frontmatter, encoding="utf-8")
 
     return drill_file

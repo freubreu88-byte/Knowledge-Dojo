@@ -1,0 +1,195 @@
+{
+  "main": {
+    "id": "a3d93ac572f78f70",
+    "type": "split",
+    "children": [
+      {
+        "id": "b0e776cf8a114b10",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "4af0b92fbf41f453",
+            "type": "leaf",
+            "state": {
+              "type": "empty",
+              "state": {},
+              "icon": "lucide-file",
+              "title": "New tab"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "1bfa4e2a25067f8f",
+    "type": "split",
+    "children": [
+      {
+        "id": "a803c00529967dc8",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "61b1faff9ab57fef",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
+            }
+          },
+          {
+            "id": "9f428852b34b8fa1",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Search"
+            }
+          },
+          {
+            "id": "29ed8d8748335c3d",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "d80e32fe27633bbc",
+    "type": "split",
+    "children": [
+      {
+        "id": "260bb4d65eef3585",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "b78f8b3e715327e6",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks"
+            }
+          },
+          {
+            "id": "7947eb32fb0d6038",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links"
+            }
+          },
+          {
+            "id": "b67d24f6a26e5c70",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "97a765e06e9e3049",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "All properties"
+            }
+          },
+          {
+            "id": "46901541d33a406e",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false,
+      "bases:Create new base": false
+    }
+  },
+  "active": "4af0b92fbf41f453",
+  "lastOpenFiles": [
+    "11_Topics/Authentication.md",
+    "11_Topics/Security.md",
+    "11_Topics/Setup.md",
+    "11_Topics/Open_Source.md",
+    "11_Topics/Cloning.md",
+    "11_Topics/Repositories.md",
+    "11_Topics/Version_Control.md",
+    "11_Topics/Pushing.md",
+    "11_Topics/Commits.md",
+    "01_Drills/DRILL__commit-and-push-a-code-update.md",
+    "01_Drills/DRILL__initialize-a-new-project-and-push-to-github.md",
+    "01_Drills/DRILL__download-an-open-source-project-from-github.md",
+    "01_Drills/DRILL__set-up-your-github-environment-with-ssh-key-and-git.md"
+  ]
+}

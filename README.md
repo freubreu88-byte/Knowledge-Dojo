@@ -56,6 +56,22 @@ Vibe-Dojo now transforms your practice into an evergreen knowledge base:
 - **Topic Index (MOCs)**: Automatic clustering in `11_Topics/` that shows your "Pass Rate" per topic.
 - **AI Insights**: A dedicated coach that analyzes your logs to find blind spots.
 
+## 🤖 Agentic Workflows
+
+Some features are **Agent-Native**, meaning they are best performed by an AI Agent (like Antigravity or Claude) interacting directly with your vault using the rules in `_agent_rules/`.
+
+- **Cheat Sheets**: Automatically generate at-a-glance summaries from Mastery Notes.
+- **Consolidation**: Merge multiple related drills or notes into one guide.
+
+### How to use
+Simply ask your AI Assistant:
+> *"Update the Cursor cheat sheet following the rules."*
+
+The Agent will:
+1. Read `_agent_rules/cheatsheet_rules.md`.
+2. Extract unique commands and snippets from `10_Mastery/`.
+3. Update `20_Quick_Reference/`.
+
 ## Project Structure
 
 ```

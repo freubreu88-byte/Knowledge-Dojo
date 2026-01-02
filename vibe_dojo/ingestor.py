@@ -223,6 +223,19 @@ def create_source_note(
     captured_at = datetime.now().isoformat()
     extra_metadata = {}
 
+    # Check for duplicate URL
+    if url:
+        inbox_path = vault_path / "00_Inbox"
+        if inbox_path.exists():
+            for note in inbox_path.glob("SOURCE__*.md"):
+                try:
+                    txt = note.read_text(encoding="utf-8")
+                    # Regex check for url in frontmatter
+                    if re.search(r"^url:\s*" + re.escape(url) + r"\s*$", txt, re.MULTILINE):
+                         raise ValueError(f"URL already ingested in {note.name}")
+                except OSError:
+                    continue
+
     # Determine content and method
     if url and not no_fetch:
         try:
