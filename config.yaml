@@ -2,7 +2,7 @@ defaults:
   confidence_threshold: 0.6
   timebox_min: 10
 llm:
-  model: google/gemini-3-flash-preview
+  model: gemini-2.0-flash-exp
   provider: gemini
   temperature: 0.3
 vault_path: .
