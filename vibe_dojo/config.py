@@ -33,6 +33,7 @@ class Config:
             "defaults": {
                 "timebox_min": 10,
                 "confidence_threshold": 0.6,
+                "max_drills_per_day": 5,
             },
         }
 
