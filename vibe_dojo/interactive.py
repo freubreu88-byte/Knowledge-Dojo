@@ -28,7 +28,9 @@ class InteractiveApp:
             choice = IntPrompt.ask("Choose an option", choices=["1", "2", "3", "4", "5", "6"], default=3)
             
             try:
-                if choice == 1:
+                if choice == 0:
+                    self._do_create_vault()
+                elif choice == 1:
                     self._do_ingest()
                 elif choice == 2:
                     self._do_distill_inbox()
@@ -83,6 +85,7 @@ class InteractiveApp:
         menu_text = f"""[bold blue]🥋 VIBE-DOJO CONTROL CENTER[/bold blue] [dim]| {self.vault_path.name}[/dim]
 [dim]🤖 Model: {model}[/dim]
 
+[0] 🆕 [bold]Create New Vault[/bold]
 [1] 📥 [bold]Add Content[/bold] (URL/Text)
 [2] 🧠 [bold]Process Inbox[/bold] (Distill pending)
 [3] 💪 [bold]Practice Next[/bold] (Get smarter)
@@ -204,3 +207,23 @@ class InteractiveApp:
         from .cli import topics
         console.clear()
         topics(vault=self.vault_path)
+
+
+    def _do_create_vault(self):
+        """Create a new vault."""
+        console.print("\n[bold]🆕 Create New Vault[/bold]")
+        name = Prompt.ask("Enter vault name (folder will be created in current dir)")
+        if not name:
+            return
+
+        new_path = Path.cwd() / name
+        if new_path.exists():
+            console.print(f"[red]Error: Folder '{name}' already exists![/red]")
+            return
+            
+        from .cli import init_vault
+        init_vault(new_path)
+        
+        self.vault_path = new_path
+        set_last_vault_path(new_path)
+        console.print(f"[bold green]Switched to new vault: {name}[/bold green]")
