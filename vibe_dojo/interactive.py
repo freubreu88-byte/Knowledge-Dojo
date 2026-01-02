@@ -107,7 +107,15 @@ class InteractiveApp:
         # but re-implementing the call wrapper is cleaner.
         
         console.print(f"[dim]Ingesting: {url}...[/dim]")
-        ingest(url, vault=self.vault_path)
+        # We must explicitly pass default values because calling a Typer command function directly 
+        # doesn't trigger the default value logic from decorators in the same way if arguments are missing,
+        # or worse, might act unexpectedly. 
+        # Actually, Typer functions are just functions. The issue is likely that when we call it here, 
+        # we are keeping it simple.
+        try:
+             ingest(url, vault=self.vault_path, title=None, no_fetch=False)
+        except SystemExit:
+             pass # Typer raises SystemExit on exit
 
     def _do_distill_inbox(self):
         """Interactive inbox distillation."""
