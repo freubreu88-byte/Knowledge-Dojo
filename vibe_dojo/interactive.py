@@ -25,7 +25,7 @@ class InteractiveApp:
         
         while True:
             self._show_menu()
-            choice = IntPrompt.ask("Choose an option", choices=["1", "2", "3", "4", "5", "6"], default=3)
+            choice = IntPrompt.ask("Choose an option", choices=["0", "1", "2", "3", "4", "5", "6"], default=3)
             
             try:
                 if choice == 0:
