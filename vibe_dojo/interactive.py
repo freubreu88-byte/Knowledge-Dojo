@@ -76,7 +76,12 @@ class InteractiveApp:
         """Display the main menu."""
         console.clear()
         
+        from .config import Config
+        config = Config(self.vault_path).config
+        model = config.get("llm", {}).get("model", "unknown")
+        
         menu_text = f"""[bold blue]🥋 VIBE-DOJO CONTROL CENTER[/bold blue] [dim]| {self.vault_path.name}[/dim]
+[dim]🤖 Model: {model}[/dim]
 
 [1] 📥 [bold]Add Content[/bold] (URL/Text)
 [2] 🧠 [bold]Process Inbox[/bold] (Distill pending)
@@ -116,7 +121,11 @@ class InteractiveApp:
             console.print("\n[yellow]Inbox is empty! Go 'Add Content' first.[/yellow]")
             return
 
-        num = IntPrompt.ask("How many drills per source?", default=2)
+        num_str = Prompt.ask("How many drills per source?", default="3")
+        try:
+             num = int(num_str)
+        except ValueError:
+             num = 3
         distill_inbox(vault=self.vault_path, num_drills=num)
 
     def _do_practice_next(self):
