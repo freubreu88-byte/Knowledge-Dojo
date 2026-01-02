@@ -55,7 +55,9 @@ def fetch_youtube_metadata_official(video_id: str) -> dict:
     """Fetch official metadata using YouTube Data API v3."""
     import os
     from googleapiclient.discovery import build
+    from dotenv import load_dotenv
     
+    load_dotenv()
     api_key = os.getenv("YOUTUBE_API_KEY")
     if not api_key:
         return {}
