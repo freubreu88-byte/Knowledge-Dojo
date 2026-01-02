@@ -113,7 +113,35 @@ class InteractiveApp:
         # Actually, Typer functions are just functions. The issue is likely that when we call it here, 
         # we are keeping it simple.
         try:
+             # Pass explicit defaults to avoid Typer injection issues
              ingest(url, vault=self.vault_path, title=None, no_fetch=False)
+             
+             # Chained Flow: Ask to distill immediately
+             if Prompt.ask("\n[bold]Generate drills from this source?[/bold]", choices=["y", "n"], default="y") == "y":
+                 # We need the ID of the source we just created.
+                 # Since ingest doesn't return the ID easily (prints it), we finds the most recent source note.
+                 inbox_path = self.vault_path / "00_Inbox"
+                 # Find newest file
+                 sources = list(inbox_path.glob("SOURCE__*.md"))
+                 if sources:
+                     newest = max(sources, key=lambda p: p.stat().st_mtime)
+                     content = newest.read_text(encoding="utf-8")
+                     
+                     # Extract ID
+                     import re
+                     id_match = re.search(r"id: ([\w\d]+)", content)
+                     if id_match:
+                         source_id = id_match.group(1)
+                         
+                         num_str = Prompt.ask("How many drills?", default="3")
+                         try:
+                             num = int(num_str)
+                         except ValueError:
+                             num = 3
+                             
+                         from .cli import distill
+                         distill(source_id=source_id, vault=self.vault_path, num_drills=num)
+                         
         except SystemExit:
              pass # Typer raises SystemExit on exit
 
@@ -134,7 +162,11 @@ class InteractiveApp:
              num = int(num_str)
         except ValueError:
              num = 3
-        distill_inbox(vault=self.vault_path, num_drills=num)
+        try:
+             # Explicitly calling command function
+             distill_inbox(vault=self.vault_path, num_drills=num)
+        except SystemExit:
+             pass
 
     def _do_practice_next(self):
         """Interactive practice session."""
