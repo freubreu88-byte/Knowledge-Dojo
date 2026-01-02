@@ -1,131 +1,89 @@
-# Vibe-Dojo
+# Knowledge-Dojo 🥋
+> **Stop collecting notes. Start building reflexes.**
 
-**Trainer-first learning system**: URLs → Drills → Practice → Mastery
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![Built for Obsidian](https://img.shields.io/badge/Built%20for-Obsidian-purple.svg)](https://obsidian.md/)
 
-## 🧘 Core Philosophy
+## 🌊 The Vision: Kill the "Collector's Fallacy"
 
-Vibe-Dojo is built on the principle that **doing is learning**. 
-Most "second brain" systems are libraries of dead notes. Vibe-Dojo is a **gym for your mind**.
+Most "Second Brain" systems are digital graveyards. We bookmark, we highlights, and we archive—but we rarely **learn**. Knowledge-Dojo transforms your static Obsidian vault into a **dynamic gym for your mind**.
 
-- **Trainer-First**: We prioritize drills over passive reading. Every source must eventually become an action.
-- **Lean Capture**: Don't collect notes; collect challenges.
-- **Mastery Protocol**: Only promoted to Mastery after verified performance.
-- **Vibe-Driven**: Lightweight, command-line focused, and powered by LLM distillation.
+Knowledge-Dojo is a **Trainer-First** learning system. It doesn't just store information; it distills it into active challenges (Drills) and forces you to perform before it grants you "Mastery."
 
-## Installation
+---
+
+## ✨ Key Features
+
+- **⚡ Instant Ingestion**: Feed the Dojo a YouTube URL, a blog post, or a Reddit thread. It extracts the core insights automatically.
+- **🧠 AI Distillation**: Powered by Gemini, the Dojo transforms raw content into atomic, high-signal Drills.
+- **🔄 Performance-Based Repetition**: Your "Practice" loop is driven by your success rate. Concepts you struggle with appear more often; mastered ones fade into your permanent knowledge base.
+- **📊 Automatic Topic Indexing (MOCs)**: The Dojo automatically clusters your knowledge into Topics, showing you a real-time "Pass Rate" for every skill tree.
+- **🤖 Agent-Native Workflow**: Specifically designed to work alongside AI Agents. Ask your agent to "generate a cheat sheet" from your mastery notes, and watch it happen.
+
+---
+
+## 🛠️ Getting Started
+
+### Installation
 
 ```bash
-# Create virtual environment
+# 1. Clone the repository
+git clone https://github.com/freubreu88-byte/Knowledge-Dojo.git
+cd Knowledge-Dojo
+
+# 2. Create virtual environment
 python -m venv .venv
+.venv\Scripts\activate  # Windows
+source .venv/bin/activate  # Unix/macOS
 
-# Activate (Windows)
-.venv\Scripts\activate
-
-# Activate (Unix/macOS)
-source .venv/bin/activate
-
-# Install
+# 3. Install dependencies
 pip install -e ".[dev]"
 ```
 
-## Quick Start
+### Usage
 
 ```bash
-# 1. Initialize a vault
+# Initialize your first vault
 dojo init-vault ./my-vault
 
-# 2. Add your Gemini API key
-cp .env.example .env
-# Edit .env and add your GEMINI_API_KEY
+# Capture a new source (YouTube, Blog, etc.)
+dojo capture https://www.youtube.com/watch?v=example
 
-# 3. Capture & Process
-dojo capture <url>       # Quick add
-dojo distill-inbox       # Batch process (Fetch + AI Distill)
+# Distill your inbox into active drills
+dojo distill-inbox
 
-# 4. Mastery & Knowledge
-dojo status              # Check vault dashboard
-dojo topics              # See knowledge clusters (MOCs)
-dojo next                # Practice next due drill (Interactive!)
-dojo insights            # Get AI coaching on your progress
+# Start your daily practice session
+dojo next
 ```
 
-## Knowledge Layer
+---
 
-Vibe-Dojo now transforms your practice into an evergreen knowledge base:
-- **Rich Mastery Notes**: Auto-generated deep-dives into concepts after you pass them.
-- **Topic Index (MOCs)**: Automatic clustering in `11_Topics/` that shows your "Pass Rate" per topic.
-- **AI Insights**: A dedicated coach that analyzes your logs to find blind spots.
+## 🏗️ The Dojo Architecture
 
-## 🤖 Agentic Workflows
+A Knowledge-Dojo vault is organized to move information from **Raw** to **Reflex**:
 
-Some features are **Agent-Native**, meaning they are best performed by an AI Agent (like Antigravity or Claude) interacting directly with your vault using the rules in `_agent_rules/`.
+1.  **00_Inbox**: Raw capture and transcripts.
+2.  **01_Drills**: Atomic AI-generated challenges.
+3.  **02_Practice_Logs**: Your performance history.
+4.  **10_Mastery**: Verified knowledge (Promoted only after passing drills).
+5.  **11_Topics**: Automated MOCs (Maps of Content) tracking your progress per topic.
+6.  **20_Quick_Reference**: Agent-generated cheat sheets and guides.
 
-- **Cheat Sheets**: Automatically generate at-a-glance summaries from Mastery Notes.
-- **Consolidation**: Merge multiple related drills or notes into one guide.
+---
 
-### How to use
-Simply ask your AI Assistant:
-> *"Update the Cursor cheat sheet following the rules."*
+## 🚀 Why Knowledge-Dojo?
 
-The Agent will:
-1. Read `_agent_rules/cheatsheet_rules.md`.
-2. Extract unique commands and snippets from `10_Mastery/`.
-3. Update `20_Quick_Reference/`.
+The market is flooded with "Note Taking" apps. Knowledge-Dojo is a **"Note Doing"** app. It’s for developers, researchers, and lifelong learners who want to move past passive consumption into actual expertise.
 
-## Project Structure
+**Become the master of your own knowledge. Enter the Dojo.**
 
-```
-Lernplattform/
-├── vibe_dojo/          # Main package
-│   ├── cli.py          # CLI commands
-│   ├── distiller.py    # LLM → Drills & Insights
-│   └── trainer.py      # Spaced Repetition & Topic Indexing
-...
-```
+---
 
-## Vault Structure
+## 🤝 Contributing
 
-```
-vault/
-├── 00_Inbox/           # Raw sources
-├── 01_Drills/          # Practice drills
-├── 02_Practice_Logs/   # Practice history
-├── 10_Mastery/         # Verified knowledge
-├── 11_Topics/          # Topic MOCs (Auto-indexed)
-└── 90_Archive/         # Deprecated content
-```
+We welcome contributions! Please feel free to submit a Pull Request.
 
-## Configuration
+## 📄 License
 
-Customize your Dojo experience in `config.yaml`:
-
-```yaml
-defaults:
-  max_drills_per_day: 5    # Prevent burnout with a daily cap
-  timebox_min: 10          # Default practice length
-  confidence_threshold: 0.6
-llm:
-  model: "gemini-3-flash-preview"
-  temperature: 0.3
-```
-
-## Status
-
-- [x] Step A: Scaffold + init-vault
-- [x] Step B: ingest + create-drill
-- [x] Step C: next + mark (trainer loop)
-- [x] Step D: LLM distill
-- [x] Step E: Polish (Dashboard + UX)
-
-## Troubleshooting
-
-### Startup Issues
-If `start_dojo.bat` fails immediately:
-1. Ensure you have run `python -m venv .venv`.
-2. Ensure you have installed dependencies: `pip install -e .`.
-3. Check the error message in the console.
-
-### YouTube Errors
-If you see `YouTubeTranscriptApi has no attribute list_transcripts`:
-1. Your dependency version is too old.
-2. Run: `.venv\Scripts\pip install --upgrade --force-reinstall youtube-transcript-api` to fix it.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
