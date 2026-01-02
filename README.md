@@ -1,100 +1,125 @@
 # Knowledge-Dojo 🥋
 > **Stop collecting. Start building reflexes.**
 
-Knowledge-Dojo is a **Trainer-First** learning system designed for Obsidian. It bridges the gap between *consuming* content (YouTube, Blogs, Reddit) and *mastering* it through AI-driven active recall and spaced repetition.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python: 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
+[![Obsidian: Supported](https://img.shields.io/badge/Obsidian-Native-purple.svg)](https://obsidian.md/)
+[![PRs: Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/freubreu88-byte/Knowledge-Dojo/pulls)
+
+**Knowledge-Dojo** is an AI-powered, trainer-first learning system for developers. It bridges the gap between *information hoarding* and *skill mastery* by automatically distilling your Obsidian notes into active recall challenges.
+
+[Features](#-key-features) • [Quick Start](#-quick-start) • [Workflow](#-the-dojo-workflow) • [Comparison](#-why-knowledge-dojo) • [Roadmap](#-roadmap)
 
 ---
 
-## 🚀 Quick Start: From Zero to Dojo
+## 🌊 The Problem: The "Collector's Fallacy"
+Most "Second Brain" systems are digital graveyards. We bookmark, we highlight, and we archive—but we rarely **learn**.
+*   **Passive reading** results in < 20% retention after 30 days.
+*   **Traditional Flashcards (Anki)** are disconnected from your actual notes.
+*   **Information Hoarding** creates the illusion of knowledge without the ability to apply it.
 
-### 1. Installation
+**The Solution:** Knowledge-Dojo forces you to **perform**. It's not a library; it's a **gym for your mind.**
+
+---
+
+## ✨ Key Features
+- **⚡ AI Distillation**: Feed a YouTube URL or post; Gemini extracts atomic, high-signal drills automatically.
+- **🔄 Obsidian-Native**: Your knowledge is stored in plain Markdown. No proprietary databases.
+- **📈 Reflex-Based SRS**: Spaced Repetition that prioritizes concepts you struggle with in real-time.
+- **📊 Topic Indexing (MOCs)**: Automatic clustering that shows your "Pass Rate" per skill tree.
+- **🤖 Agent-Ready**: Built to be navigated and managed by AI Agents (Cursor, Claude, etc.).
+
+---
+
+## 🚀 Quick Start (5-Minute Setup)
+
+### 1. Installation & Environment
 ```bash
-# Clone the repository
 git clone https://github.com/freubreu88-byte/Knowledge-Dojo.git
 cd Knowledge-Dojo
-
-# Setup environment
 python -m venv .venv
 .venv\Scripts\activate  # Windows
-source .venv/bin/activate  # Unix/macOS
-
-# Install package
 pip install -e "."
 ```
 
 ### ⚡ Windows One-Click (Recommended)
-If you are on Windows, you can simply run the included batch file:
-- **`start_dojo.bat`**: This will automatically setup the environment, check for dependencies, and guide you through creating or opening a vault. It's the fastest way to get training.
+Simply run **`start_dojo.bat`**. It handles environment setup and guides you through vault creation.
 
-### 2. Connect to Obsidian
-Knowledge-Dojo lives inside your Obsidian vault.
-1. Create a new folder in Obsidian (e.g., `MyBrain`).
-2. Initialize the Dojo in that folder:
-   ```bash
-   dojo init-vault "C:\Path\To\Your\Vault"
-   ```
-3. Open Obsidian. You will see several new folders (Inbox, Drills, Mastery, etc.) and a `Home.md` dashboard.
+### 2. Initialize your Vault
+Connect the Dojo to your Obsidian vault folder:
+```bash
+dojo init-vault "C:\Path\To\Your\Vault"
+```
 
-### 3. Configure AI
-Create a `.env` file in the project root:
+### 3. Add API Key
+Create a `.env` file in the root:
 ```env
-GEMINI_API_KEY=your_key_here
+GEMINI_API_KEY=your_active_key
 ```
 
 ---
 
-## 🛠️ The Workflow: How to Train
+## 🛠️ The Dojo Workflow
 
-Knowledge-Dojo follows a strict **"Raw → Challenge → Mastery"** pipeline.
-
-### Step A: Capture (The Ingest)
-Found a great YouTube video or article? Don't just bookmark it.
-```bash
-dojo capture https://www.youtube.com/watch?v=...
+```mermaid
+graph LR
+    A[Capture: URL/Text] --> B[00_Inbox]
+    B --> C{AI Distill}
+    C --> D[01_Drills]
+    D --> E[Practice: dojo next]
+    E -->|Success| F[10_Mastery]
+    E -->|Failure| D
+    F --> G[11_Topics / MOCs]
 ```
-*This saves a lean source note in `00_Inbox` with the full transcript/content attached.*
 
-### Step B: Distill (The Transformation)
-Turn your raw notes into practice.
-```bash
-dojo distill-inbox
-```
-*The AI analyzes your inbox and creates atomic, high-signal Drills in `01_Drills`.*
-
-### Step C: Practice (The Dojo Loop)
-This is where the learning happens.
-```bash
-dojo next
-```
-*This starts an interactive session. The Dojo presents you with your most urgent drills based on your past performance.*
-
-### Step D: Mastery
-Once you consistently pass a drill, Knowledge-Dojo **promotes** that concept to `10_Mastery`.
-* Your **Dashboard (`Home.md`)** and **Topics (`11_Topics`)** update automatically to show your expertise level.
+### The Loop:
+1.  **Capture**: `dojo capture <url>` (YouTube/Blog/Reddit)
+2.  **Distill**: `dojo distill-inbox` (AI creates the challenges)
+3.  **Train**: `dojo next` (Start your daily practice session)
+4.  **Master**: Concepts are promoted to `10_Mastery` only after verified performance.
 
 ---
 
-## 📂 Vault Structure
+## ⚖️ Why Knowledge-Dojo?
 
-| Folder | Purpose |
-| :--- | :--- |
-| `00_Inbox` | Raw captures and transcripts. Your "To-Process" list. |
-| `01_Drills` | AI-generated challenges (Flashcards/Prompts). |
-| `10_Mastery` | Your verified knowledge base. Concepts you have proven you know. |
-| `11_Topics` | **Auto-generated Index**. Maps of Content showing pass-rates per topic. |
-| `20_Quick_Reference` | Cheat sheets and high-density guides. |
-
----
-
-## 🤖 Agentic Advantage
-Knowledge-Dojo is built to be **AI-Native**. You can use agents (like Cursor, Claude, or Antigravity) to:
-- *"Create a cheat sheet for Python decorators based on my Mastery notes."*
-- *"Analyze my practice logs and tell me why I'm failing the Security drills."*
+| Feature | Knowledge-Dojo | Anki | RemNote | Obsidian SR |
+| :--- | :--- | :--- | :--- | :--- |
+| **Source Context** | High (Linked to Notes) | Low (Fragmented) | Medium | Medium |
+| **Automation** | AI-Auto-Generation | Manual | AI-Assisted | Manual |
+| **Workflow** | CLI-First (Fast) | GUI-First | Web/App | GUI |
+| **Data Ownership** | 100% Markdown | SQLite | Proprietary | 100% Markdown |
+| **Agent Support** | Native | None | Low | Low |
 
 ---
 
-## 🤝 Community & Support
-- **Issues**: Found a bug? Open an issue!
-- **Discussions**: Want to share your learning workflow? Start a thread.
+## 🤖 Agentic Advantage (Advanced Usage)
+Knowledge-Dojo is designed for **Agent-Native** learners. Ask your AI Assistant (Cursor/Antigravity):
 
-**Enter the Dojo. Level up your mind.**
+> *"Update the Security cheat sheet based on my latest Mastery notes."*
+
+The assistant will read your performance data in `11_Topics/` and verified knowledge in `10_Mastery/` to update your `20_Quick_Reference/` folder.
+
+---
+
+## 🗺️ Roadmap
+- [ ] **v0.2**: PDF Multi-page distillation.
+- [ ] **v0.3**: Web Dashboard for visual progress tracking.
+- [ ] **v0.4**: Integration with Anki/Quizlet exports.
+- [ ] **v1.0**: Collaborative "Dojo Rooms" for team learning.
+
+---
+
+## 🤝 Contributing
+Contributions are what make the open-source community an amazing place to learn, inspire, and create.
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+---
+
+## 📄 License
+Distributed under the MIT License. See `LICENSE` for more information.
+
+**Level up your mind. Enter the Dojo.**
