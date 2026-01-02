@@ -10,6 +10,7 @@
 
 [Features](#-key-features) • [Quick Start](#-quick-start) • [Workflow](#-the-dojo-workflow) • [Comparison](#-why-knowledge-dojo) • [Roadmap](#-roadmap)
 
+![Generated Image January 02, 2026 - 2_01PM](https://github.com/user-attachments/assets/973d8438-389b-4207-af87-9495a3c0cecc)
 ---
 
 ## 🌊 The Problem: The "Collector's Fallacy"
