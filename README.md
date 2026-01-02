@@ -2,7 +2,7 @@
 > **Stop collecting. Start building reflexes.**
 
 Knowledge-Dojo is a **Trainer-First** learning system designed for Obsidian. It bridges the gap between *consuming* content (YouTube, Blogs, Reddit) and *mastering* it through AI-driven active recall and spaced repetition.
-
+![Generated Image January 02, 2026 - 2_01PM](https://github.com/user-attachments/assets/973d8438-389b-4207-af87-9495a3c0cecc)
 ---
 
 ## 🚀 Quick Start: From Zero to Dojo
