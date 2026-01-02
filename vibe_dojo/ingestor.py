@@ -115,15 +115,32 @@ def fetch_youtube_transcript(url: str) -> tuple[str, str, dict]:
     
     try:
         # Fetch transcript
-        transcript_list = YouTubeTranscriptApi.list_transcripts(video_id)
+        # Compatibility: Handling different library versions found in wild
+        if hasattr(YouTubeTranscriptApi, 'list_transcripts'):
+            transcript_list = YouTubeTranscriptApi.list_transcripts(video_id)
+        elif hasattr(YouTubeTranscriptApi, 'list'):
+            # Fallback for version requiring instantiation
+            transcript_list = YouTubeTranscriptApi().list(video_id)
+        else:
+             # Try instantiation with list_transcripts (just in case)
+             transcript_list = YouTubeTranscriptApi().list_transcripts(video_id)
+             
         transcript = transcript_list.find_transcript(["de", "en"])
         transcript_data = transcript.fetch()
         
         # Format with timestamps
         formatted_lines = []
         for entry in transcript_data:
-            timestamp = format_timestamp(entry['start'])
-            text = entry['text']
+            # Handle both dict (standard) and object (legacy/variant) responses
+            if isinstance(entry, dict):
+                start = entry['start']
+                text = entry['text']
+            else:
+                # Assume object attributes
+                start = getattr(entry, 'start', 0)
+                text = getattr(entry, 'text', "")
+                
+            timestamp = format_timestamp(start)
             formatted_lines.append(f"[{timestamp}] {text}")
             
         full_text = "\n".join(formatted_lines)
