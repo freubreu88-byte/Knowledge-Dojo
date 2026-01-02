@@ -135,22 +135,125 @@ class InteractiveApp:
                      id_match = re.search(r"id: ([\w\d]+)", content)
                      if id_match:
                          source_id = id_match.group(1)
-                         
-                         num_str = Prompt.ask("How many drills?", default="3")
-                         try:
-                             num = int(num_str)
-                         except ValueError:
-                             num = 3
-                             
-                         from .config import Config
-                         config = Config(self.vault_path).config
-                         model = config.get("llm", {}).get("model", "gemini-3-flash-preview")
-                         
-                         from .cli import distill
-                         distill(source_id=source_id, vault=self.vault_path, num_drills=num, model=model)
+                         self._propose_and_select_drills(source_id)
                          
         except SystemExit:
              pass # Typer raises SystemExit on exit
+             
+    def _propose_and_select_drills(self, source_id: str):
+        """Analyze content and let user select drills."""
+        from .config import Config
+        from .distiller import distill_drills
+        from .writer import create_drill_note
+        from .distiller import load_source_content, get_existing_context
+        
+        config = Config(self.vault_path).config
+        model = config.get("llm", {}).get("model", "gemini-2.5-flash")
+        
+        console.print(f"\n[bold blue]🧠 Analyzing content with {model}...[/bold blue]")
+        
+        # 1. Get Proposals
+        try:
+             # Manually loading content here to pass to distill_drills
+             # This duplicates logic in create_drills_from_source but gives us the raw list first
+             source_content, source_metadata = load_source_content(self.vault_path, source_id)
+             existing_context = get_existing_context(self.vault_path)
+             
+             with console.status("[bold green]Designing drills...[/bold green]"):
+                 proposals = distill_drills(
+                     source_content, 
+                     source_metadata, 
+                     model_name=model, 
+                     existing_context=existing_context
+                 )
+        except Exception as e:
+            console.print(f"[red]Failed to generate proposals: {e}[/red]")
+            return
+
+        if not proposals:
+            console.print("[yellow]No drills found in this content.[/yellow]")
+            return
+
+        # 2. Display Proposals
+        from rich.table import Table
+        table = Table(title=f"Proposed Drills from Content", show_header=True, header_style="bold magenta")
+        table.add_column("#", style="dim", width=4)
+        table.add_column("Confidence", justify="center", width=12)
+        table.add_column("Drill", style="bold")
+        table.add_column("Est. Time", justify="right")
+
+        for idx, drill in enumerate(proposals, 1):
+            confidence_val = drill.get('confidence_score', 3)
+            # Ensure int for safety
+            try:
+                confidence_val = int(confidence_val)
+            except:
+                confidence_val = 3
+                
+            stars = "⭐" * confidence_val
+            table.add_row(
+                str(idx), 
+                stars, 
+                f"{drill['title']}\n[dim]{drill.get('drill_goal', 'No goal')}[/dim]", 
+                f"{drill.get('timebox_min', 15)} min"
+            )
+
+        console.print(table)
+        console.print("\n[dim]Tip: Enter numbers separated by commas (e.g. 1,3) or range (1-3).[/dim]")
+        
+        # 3. Selection
+        selection = Prompt.ask(
+            "[bold]Select drills to create[/bold] ([A]ll / [N]one)", 
+            default="A"
+        )
+        
+        selected_indices = []
+        if selection.lower() == 'a':
+            selected_indices = list(range(len(proposals)))
+        elif selection.lower() == 'n':
+            return
+        else:
+            # Parse "1,3, 5-7"
+            parts = selection.split(',')
+            for part in parts:
+                part = part.strip()
+                if '-' in part:
+                    try:
+                        start, end = map(int, part.split('-'))
+                        # user input is 1-based, convert to 0-based
+                        selected_indices.extend(range(start-1, end))
+                    except ValueError:
+                        pass
+                else:
+                    try:
+                        idx = int(part) - 1
+                        if 0 <= idx < len(proposals):
+                            selected_indices.append(idx)
+                    except ValueError:
+                        pass
+                        
+        # 4. Create Files
+        created_count = 0
+        for idx in selected_indices:
+            if idx >= len(proposals): continue
+            
+            drill = proposals[idx]
+            create_drill_note(
+                vault_path=self.vault_path,
+                title=drill["title"],
+                pattern=drill.get("pattern", []),
+                drill_goal=drill.get("drill_goal", ""),
+                drill_steps=drill.get("drill_steps", []),
+                validation=drill.get("validation", []),
+                snippet_type=drill.get("snippet_type", "code"),
+                snippet_content=drill.get("snippet_content", ""),
+                topics=drill.get("topics", []),
+                timebox_min=drill.get("timebox_min", 15),
+                source_id=source_id,
+            )
+            created_count += 1
+            
+        console.print(f"\n[bold green]✓ Created {created_count} drills![/bold green]")
 
     def _do_distill_inbox(self):
         """Interactive inbox distillation."""

@@ -83,18 +83,18 @@ def load_source_content(vault_path: Path, source_id: str) -> tuple[str, dict]:
 def distill_drills(
     source_content: str,
     source_metadata: dict,
-    num_drills: int = 3,
-    model_name: str = "gemini-3-flash-preview",
+    model_name: str = "gemini-2.5-flash",
     existing_context: str = "",
+    num_drills: Optional[int] = None, # Kept for backward compat but unused in prompt
 ) -> list[dict]:
     """Use Gemini to extract drills from source content.
 
     Args:
         source_content: Full source text
         source_metadata: Source metadata (url, kind, etc)
-        num_drills: Number of drills to generate
         model_name: Gemini model to use
         existing_context: String summarizing user's known concepts
+        num_drills: Deprecated, unused.
 
     Returns:
         List of drill dictionaries with structure matching create_drill_note
@@ -122,9 +122,11 @@ def distill_drills(
 ---
 
 **Your Task:**
-Extract {num_drills} high-value practice drills from this content. Each drill should:
+Identify ALL distinct, actionable practice drills from this content (maximum 10). Do not limit yourself to a small number if the content is rich.
+
+For each drill:
 1. Focus on ONE specific skill/pattern/concept
-2. Be immediately actionable (can be practiced in 5-15 minutes)
+2. Be immediately actionable (can be practiced in 5-20 minutes)
 3. Include concrete steps and validation criteria
 4. Be trainer-first: emphasize DOING, not just reading
 5. **Reference specific timestamps** where the concept is explained (e.g., "See 12:45")
@@ -142,6 +144,7 @@ Return a JSON array of drill objects. Each drill must have:
 - snippet_content: Actual code/prompt/commands to practice with
 - topics: Array of 1-3 relevant topic tags
 - timebox_min: Estimated minutes (5-20)
+- confidence_score: Integer 1-5 (5 = Highly actionable/clear, 1 = Vague/Theoretical)
 
 **Important:**
 - Return ONLY valid JSON, no markdown code fences
@@ -149,7 +152,7 @@ Return a JSON array of drill objects. Each drill must have:
 - Make steps specific enough to follow without the original source
 - Validation should be objective (pass/fail, not subjective)
 
-Generate {num_drills} drills now:"""
+Generate the drill proposal list now:"""
 
     # Call Gemini (1M token window allows full transcripts)
     try:
@@ -186,9 +189,6 @@ Generate {num_drills} drills now:"""
         drills = json.loads(response_text)
     except json.JSONDecodeError as e:
         raise ValueError(f"Failed to parse Gemini response as JSON: {e}\n\n{response_text}")
-
-    return drills
-
 
     return drills
 
