@@ -22,6 +22,10 @@ source .venv/bin/activate  # Unix/macOS
 pip install -e "."
 ```
 
+### ⚡ Windows One-Click (Recommended)
+If you are on Windows, you can simply run the included batch file:
+- **`start_dojo.bat`**: This will automatically setup the environment, check for dependencies, and guide you through creating or opening a vault. It's the fastest way to get training.
+
 ### 2. Connect to Obsidian
 Knowledge-Dojo lives inside your Obsidian vault.
 1. Create a new folder in Obsidian (e.g., `MyBrain`).
